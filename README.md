@@ -13,7 +13,7 @@
 ### Java application, which allows showing the different applications of the graphs either by adjacency matrix or adjacency list, based on a competitive programming exercise.
 ### Link to the problem to solve: https://onlinejudge.org/index.php?option=onlinejudge&Itemid=8&page=show_problem&problem=5038
 
-## Note
+### Note
 
 ### This program was adapted to be displayed with a graphical interface, additionally there are different algorithms that are used in the graphs.
 

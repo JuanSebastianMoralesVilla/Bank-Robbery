@@ -1,4 +1,4 @@
-package model;
+package data_structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -111,7 +111,6 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 	
 	@Override
 	public Map<T,T> dijkstra(T initialNode) {
-		// TODO Auto-generated method stub
 		Map<T,Integer> distances = new HashMap<>();
 		Map<T,T> previous = new HashMap<>();
 		Map<T,Pair> pairs = new HashMap<>();
@@ -142,7 +141,6 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 				
 				if(aux < currentDistance) {
 					Pair currentPair = pairs.get(neighbor);
-					
 					distances.remove(neighbor);
 					distances.put(neighbor, aux);
 					
@@ -155,7 +153,6 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 				}
 			}
 		}
-		
 		return previous;
 	}
 
@@ -222,33 +219,54 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 		return dist;
 	}
 	
-	public GraphList<T> primsAlgorithm(T start) {
-		int size = map.size();
-		VertexADJ<T> VOrigin = map.get(start);
-		Map<T,Boolean> visited = new HashMap<>();
-		Map<T,Integer> key = new HashMap<>();
-		if(VOrigin!=null) {
-			GraphList<T> newGraph = new GraphList<>(bidirectional);
-			int max = Integer.MAX_VALUE;
-			PriorityQueue<SuperPair> edges = new PriorityQueue<>();
+	
+	@Override
+	public GraphMatrix<T> prim( ){
+		int NNodes = map.size();
+		
+		Map<T, Boolean>  reached = new HashMap<>();
+		Map<T,T> predNode = new HashMap<>();
+		//int infinite = Integer.MAX_VALUE;
+		int aux = 0;
+		//Map<T,VertexADJ<T>> linkCost = map;
+		T first = null;
+		for(Entry<T, VertexADJ<T>> entry:map.entrySet()) {
+			if(aux==0) {
+				first = entry.getKey();
+				reached.put(entry.getKey(), true);
+				predNode.put(entry.getKey(), entry.getKey());
+			}else {
+				reached.put(entry.getKey(), false);
+			}
+			aux++;
+		}
+		T x,y =null;
+		for (int k = 1; k < NNodes; k++){
+			x = y = first;
 			for(Entry<T, VertexADJ<T>> entry:map.entrySet()) {
-				key.put(entry.getKey(), max	);
-				visited.put(entry.getKey(), false);
 				Map<T,Integer> values = entry.getValue().getEdgesWeight();
 				for(Entry<T,Integer> edge:values.entrySet()) {
-					SuperPair pair = new SuperPair(entry.getKey(),edge.getKey(),edge.getValue());
-					edges.add(pair);
+					if(reached.get(entry.getKey()) && !reached.get(edge.getKey())
+							&& map.get(x).getEdgesWeight().get(y)!=null && 
+							(edge.getValue()< map.get(x).getEdgesWeight().get(y))){
+						x = entry.getKey();
+						y = edge.getKey();
+					}
 				}
 			}
-			Map<T,T> pred = new HashMap<>();//No se que es Pred xd
-			
-			
-			return newGraph;
+			predNode.put(y, x);
+    	    reached.put(y, true);
 		}
-		return null;
+		Map<T,T> a = predNode;
+		GraphMatrix<T> result = new GraphMatrix<>(bidirectional, NNodes);
+		for(Entry<T, VertexADJ<T>> entry:map.entrySet()){
+			result.addEdge(a.get(entry.getKey()),entry.getKey());
+		}
+		return result;
 	}
 	
-	public void kruskal() {
+	@Override
+	public GraphMatrix<T> kruskal() {
 		//Crear el arbol
 		DisjoinSet<T> disjoinset = new DisjoinSet<>(map.size());
 		for(Entry<T, VertexADJ<T>> entry:map.entrySet()) {
@@ -269,8 +287,12 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 			T v = pair.element2;
 			disjoinset.union(u, v);
 		}
-		
+		return null;
 	}
+	
+
+	
+	
 	class SuperPair implements Comparable<SuperPair>{
 		private T element;
 		private T element2;
@@ -328,6 +350,7 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 		
 	}
 	
+
 
 
 }

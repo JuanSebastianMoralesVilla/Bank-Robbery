@@ -1,4 +1,4 @@
-package model;
+package data_structures;
 
 import java.util.ArrayList;
 
@@ -17,11 +17,11 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 	private boolean bidirectional;
 	private int[][] weightMatrix;
 	
-	public GraphMatrix(boolean bidirectional,int row,int colum) {
+	public GraphMatrix(boolean bidirectional,int lenght) {
 		positionsVertex = new HashMap<>();
 		positionsIndex = new HashMap<>();
 		this.bidirectional = bidirectional;
-		weightMatrix = new int[row][colum];
+		weightMatrix = new int[lenght][lenght];
 	}
 	
 	public void addVertex(T element) {
@@ -127,7 +127,6 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 			Pair pair = new Pair(i,dist[i]);
 			pairs.put(i, pair);
 			queue.add(pair);
-			
 		}
 		
 		while(!queue.isEmpty()) {
@@ -145,7 +144,6 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 				}
 			}
 		}
-		
 		return prev;
 	}
 
@@ -200,11 +198,8 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		return dist;
 	}
 	
-
-	
-	
-	public void kruskal() {
-		//Crear el arbol
+	@Override
+	public GraphMatrix<T> kruskal() {
 		DisjoinSet<T> disjoinset = new DisjoinSet<>(positionsIndex.size());
 		for(Entry<T, Integer> entry:positionsVertex.entrySet()) {
 			disjoinset.make(entry.getKey());
@@ -222,8 +217,51 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 			T v = pair.element2;
 			disjoinset.union(u, v);
 		}
-		
+		return null;
 	}
+	
+	@Override
+	public GraphMatrix<T> prim( ){
+		int NNodes = positionsVertex.size();
+		int i, j, k, x, y;
+		boolean[] Reached = new boolean[NNodes];
+		int[] predNode = new int[NNodes];
+		Reached[0] = true;
+		int infinite = Integer.MAX_VALUE;
+		int[][] LinkCost = new int[NNodes][NNodes];
+		for ( i=0; i < NNodes; i++){
+			for ( j=0; j < NNodes; j++){
+        	 LinkCost[i][j] = weightMatrix[i][j];
+        	 if ( LinkCost[i][j] == 0 )
+        		 LinkCost[i][j] = infinite;
+			}
+		}
+		for ( k = 1; k < NNodes; k++ )
+		{
+			Reached[k] = false;
+		}
+		predNode[0] = 0;
+		for (k = 1; k < NNodes; k++){
+			x = y = 0;
+			for ( i = 0; i < NNodes; i++ ) {
+				for ( j = 0; j < NNodes; j++ ){
+					if ( Reached[i] && !Reached[j] && LinkCost[i][j] < LinkCost[x][y] ){
+						x = i;
+						y = j;
+					}
+				}
+			}
+			predNode[y] = x;
+    	    Reached[y] = true;
+		}
+		int[] a= predNode;
+		GraphMatrix<T> result = new GraphMatrix<>(bidirectional, NNodes);
+		for ( i = 0; i < NNodes; i++ ) {
+			result.addEdge(positionsIndex.get(a[i]), positionsIndex.get(i));
+		}
+		return result;
+	}
+	
 	class SuperPair implements Comparable<SuperPair>{
 		private T element;
 		private T element2;
@@ -255,7 +293,6 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		Pair(Integer element, Integer weight){
 			this.element = element;
 			this.weight = weight;
-			
 		}
 		
 		@Override

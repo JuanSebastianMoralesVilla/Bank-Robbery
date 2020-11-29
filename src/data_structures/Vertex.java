@@ -1,5 +1,4 @@
-package model;
-
+package data_structures;
 
 public class Vertex<T extends Comparable<T>> {
 	

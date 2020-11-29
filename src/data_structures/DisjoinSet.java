@@ -1,4 +1,4 @@
-package model;
+package data_structures;
 
 import java.util.ArrayList;
 

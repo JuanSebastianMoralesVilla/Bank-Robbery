@@ -3,7 +3,6 @@ package data_structures;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.PriorityQueue;
@@ -15,6 +14,7 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 	private Map<T,VertexADJ<T>> map;
 	private ArrayList<T> all;
 	private boolean bidirectional;
+	private Map<T,Integer> position;
 	//hacer que cuando se ingrese un nuevo nodo tambien se le entregue un numero que se guardara en un hashmap
 	//hacer lo mismo para la implementacion con matriz de adyacencia
 	
@@ -24,10 +24,17 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 		this.bidirectional = bidirectional;
 	}
 	
-	public void addVertex(T element) {
-		map.put(element, new VertexADJ<T>(element));
-		all.add(element);
+	@Override
+	public boolean addVertex(T element) {
+		if(!map.containsKey(element)) {
+			map.put(element, new VertexADJ<T>(element));
+			all.add(element);
+			return true;
+		}
+		return false;
 	}
+	
+	@Override
 	public void addEdge(T source,T destination) {
 		if(!map.containsKey(source)) {
 			addVertex(source);
@@ -44,7 +51,9 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 		}
 		
 	}
-	public void addEdge(T source,T destination,Integer weight) {
+	
+	@Override
+	public void addEdge(T source,T destination,int weight) {
 		if(!map.containsKey(source)) {
 			addVertex(source);
 		}
@@ -113,22 +122,17 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 	public Map<T,T> dijkstra(T initialNode) {
 		Map<T,Integer> distances = new HashMap<>();
 		Map<T,T> previous = new HashMap<>();
-		Map<T,Pair> pairs = new HashMap<>();
-		distances.put(initialNode, 0);
-		
-		PriorityQueue<Pair> pQueue = new PriorityQueue<Pair>(); 
+		Map<T,Pair<T>> pairs = new HashMap<>();
+		PriorityQueue<Pair<T>> pQueue = new PriorityQueue<Pair<T>>(); 
 		
 		for(Map.Entry<T,VertexADJ<T>> mapElement : map.entrySet()) {
-			if( ((Comparable<T>) mapElement.getKey()).compareTo(initialNode)!=0) {
-				
-				distances.put((T)mapElement.getKey(),Integer.MAX_VALUE);
-				T key = mapElement.getKey();
-				Pair pair = new Pair(key,distances.get(key));
-				pQueue.add(pair);
-				pairs.put(key, pair);
-			}
+			distances.put((T)mapElement.getKey(),Integer.MAX_VALUE);
+			T key = mapElement.getKey();
+			Pair<T> pair = new Pair<>(key,distances.get(key));
+			pQueue.add(pair);
+			pairs.put(key, pair);
 		}
-		
+		distances.put(initialNode, 0);
 		while(!pQueue.isEmpty()) {
 			T currentVertex = pQueue.poll().getElement();
 			ArrayList<T> currentNeighbors = map.get(currentVertex).getEdges();
@@ -136,11 +140,11 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 			
 			for(int i=0;i<currentNeighbors.size();i++) {
 				T neighbor = currentNeighbors.get(i);
-				Integer aux = distances.get(currentVertex) + currentWeights.get(i);
-				Integer currentDistance = distances.get(neighbor);
+				int aux = distances.get(currentVertex) + currentWeights.get(neighbor);
+				int currentDistance = distances.get(neighbor);
 				
 				if(aux < currentDistance) {
-					Pair currentPair = pairs.get(neighbor);
+					Pair<T> currentPair = pairs.get(neighbor);
 					distances.remove(neighbor);
 					distances.put(neighbor, aux);
 					
@@ -157,7 +161,7 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 	}
 
 	@Override
-	public List<T> dijkstra(T initialNode, T finalNode) {
+	public ArrayList<T> dijkstra(T initialNode, T finalNode) {
 	
 		Map<T,T> previous = dijkstra(initialNode);
 		boolean pathFounded = false;
@@ -185,7 +189,7 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 	@Override
 	public int[][] floydWarshall() {
 		int[][ ] dist = new int[map.size()][map.size()];
-		Map<T,Integer> position = new HashMap<>();
+		position = new HashMap<>();
 		int aux = 0;
 		for(Map.Entry<T,VertexADJ<T>> entry:map.entrySet()) {
 			T currentElement = entry.getKey();
@@ -199,10 +203,15 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 			for(Map.Entry<T,Integer> edge : vertex.getEdgesWeight().entrySet()) {
 				int j = position.get(edge.getKey());
 				int value = edge.getValue();
-				if(i==j) {
-					dist[i][j] = 0;
-				}else {
-					dist[i][j] = value!=0?value:Integer.MAX_VALUE;
+				dist[i][j] = value;
+			}
+		}
+		for (int i = 0; i < dist.length; i++) {
+			for (int j = 0; j < dist[i].length; j++) {
+				if(i!=j) {
+					if(dist[i][j] ==0) {
+						dist[i][j] = Integer.MAX_VALUE;
+					}
 				}
 			}
 		}
@@ -210,7 +219,7 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 		for (int k = 0; k <length; k++) {
 			for (int i = 0; i < length; i++) {
 				for (int j = 0; j < length; j++) {
-					if(dist[i][j]> dist[i][k]+ dist[k][j]) {
+					if(dist[i][j]> dist[i][k]+ dist[k][j] && (dist[i][k]!=Integer.MAX_VALUE && dist[k][j]!=Integer.MAX_VALUE)) {
 						dist[i][j] = dist[i][k] + dist[k][j];
 					}
 				}
@@ -220,15 +229,14 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 	}
 	
 	
-	@Override
-	public GraphMatrix<T> prim( ){
+	public GraphList<T> prim( ){
 		int NNodes = map.size();
 		
 		Map<T, Boolean>  reached = new HashMap<>();
 		Map<T,T> predNode = new HashMap<>();
-		//int infinite = Integer.MAX_VALUE;
+	
 		int aux = 0;
-		//Map<T,VertexADJ<T>> linkCost = map;
+
 		T first = null;
 		for(Entry<T, VertexADJ<T>> entry:map.entrySet()) {
 			if(aux==0) {
@@ -247,8 +255,8 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 				Map<T,Integer> values = entry.getValue().getEdgesWeight();
 				for(Entry<T,Integer> edge:values.entrySet()) {
 					if(reached.get(entry.getKey()) && !reached.get(edge.getKey())
-							&& map.get(x).getEdgesWeight().get(y)!=null && 
-							(edge.getValue()< map.get(x).getEdgesWeight().get(y))){
+							&& (map.get(x).getEdgesWeight().get(y)==null || 
+							(edge.getValue()< map.get(x).getEdgesWeight().get(y)))){
 						x = entry.getKey();
 						y = edge.getKey();
 					}
@@ -258,99 +266,73 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
     	    reached.put(y, true);
 		}
 		Map<T,T> a = predNode;
-		GraphMatrix<T> result = new GraphMatrix<>(bidirectional, NNodes);
+		GraphList<T> result = new GraphList<>(bidirectional);
 		for(Entry<T, VertexADJ<T>> entry:map.entrySet()){
 			result.addEdge(a.get(entry.getKey()),entry.getKey());
 		}
 		return result;
 	}
 	
-	@Override
-	public GraphMatrix<T> kruskal() {
+	public GraphList<T> kruskal() {
 		//Crear el arbol
 		DisjoinSet<T> disjoinset = new DisjoinSet<>(map.size());
 		for(Entry<T, VertexADJ<T>> entry:map.entrySet()) {
 			disjoinset.make(entry.getKey());
 		}
-		Queue<SuperPair> edges = new PriorityQueue<>();
+		Queue<SuperPair<T>> edges = new PriorityQueue<>();
 		for(Entry<T, VertexADJ<T>> entry:map.entrySet()) {
 			Map<T,Integer> values = entry.getValue().getEdgesWeight();
 			for(Entry<T,Integer> edge:values.entrySet()) {
-				SuperPair pair = new SuperPair(entry.getKey(),edge.getKey(),edge.getValue());
+				SuperPair<T> pair = new SuperPair<>(entry.getKey(),edge.getKey(),edge.getValue());
 				edges.add(pair);
 			}
 		}
 		
 		while(!edges.isEmpty()) {
-			SuperPair pair = edges.poll();
-			T u = pair.element;
-			T v = pair.element2;
+			SuperPair<T> pair = edges.poll();
+			T u = pair.getElement();
+			T v = pair.getElement2();
 			disjoinset.union(u, v);
 		}
 		return null;
 	}
-	
-
-	
-	
-	class SuperPair implements Comparable<SuperPair>{
-		private T element;
-		private T element2;
-		private int weight;
-		public SuperPair(T element, T element2,int weight) {
-			this.element = element;
-			this.element2 = element2;
-			this.weight = weight;
-		}
-		
-		@Override
-		public int compareTo(SuperPair pair) {
-			return weight-pair.weight;
-		}
-		public T getElement() {
-			return element;
-		}
-		public T getElement2() {
-			return element2;
-		}
-		public int getWeight() {
-			return weight;
-		}
+	public Map<T, VertexADJ<T>> getMap() {
+		return map;
 	}
-	class Pair implements Comparable<Integer>{
-		private T element;
-		private Integer weight;
-		Pair(T element, Integer weight){
-			this.element = element;
-			this.weight = weight;
-			
-		}
-		
-		@Override
-		public int compareTo(Integer arg0) {
-		
-			return arg0-weight;
-		}
 
-		public T getElement() {
-			return element;
-		}
+	public ArrayList<T> getAll() {
+		return all;
+	}
 
-		public void setElement(T element) {
-			this.element = element;
-		}
+	public boolean isBidirectional() {
+		return bidirectional;
+	}
 
-		public Integer getWeight() {
-			return weight;
-		}
+	@Override
+	public boolean containsVertex(T element) {
+		return map.containsKey(element);
+	}
 
-		public void setWeight(Integer weight) {
-			this.weight = weight;
+	@Override
+	public boolean delateVertex(T element) {
+		if(map.containsKey(element)) {
+			map.remove(element);
+			for(Entry<T,VertexADJ<T>> entry: map.entrySet()) {
+				ArrayList<T> array = entry.getValue().getEdges();
+				for (int i = 0; i < array.size(); i++) {
+					if(array.get(i).equals(element)) {
+						array.remove(i);
+					}
+				}
+			}
+			return true;
 		}
-		
+		return false;
+	}
+
+	public Map<T,Integer> getPosition() {
+		return position;
 	}
 	
-
-
 
 }

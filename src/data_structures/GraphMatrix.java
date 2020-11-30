@@ -2,9 +2,9 @@ package data_structures;
 
 import java.util.ArrayList;
 
+
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -24,12 +24,18 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		weightMatrix = new int[lenght][lenght];
 	}
 	
-	public void addVertex(T element) {
-		int i = positionsVertex.size();
-		positionsVertex.put(element, i);
-		positionsIndex.put(i,element);
+	@Override
+	public boolean addVertex(T element) {
+		if(!positionsVertex.containsKey(element)) {
+			int i = positionsVertex.size();
+			positionsVertex.put(element, i);
+			positionsIndex.put(i,element);
+			return true;
+		}
+		return false;
 	}
 	
+	@Override
 	public void addEdge(T source, T destination) {
 		if(!positionsVertex.containsKey(source)) {
 			addVertex(source);
@@ -45,6 +51,8 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		}
 		
 	}
+	
+	@Override
 	public void addEdge(T source, T destination,int weight) {
 		if(!positionsVertex.containsKey(source)) {
 			addVertex(source);
@@ -117,20 +125,20 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		int position = positionsVertex.get(initialNode);
 		int lenght = weightMatrix[position].length;
 		Map<T,T> prev = new HashMap<>();
-		Map<Integer,Pair> pairs = new HashMap<>();
+		Map<Integer,Pair<Integer>> pairs = new HashMap<>();
 		int[] dist = new int[lenght];
-		Queue<Pair> queue = new PriorityQueue<>();
+		Queue<Pair<Integer>> queue = new PriorityQueue<>();
 		for (int i = 0; i < dist.length; i++) {
 			if(i!=position) {
 				dist[i] = Integer.MAX_VALUE;
 			}
-			Pair pair = new Pair(i,dist[i]);
+			Pair<Integer> pair = new Pair<>(i,dist[i]);
 			pairs.put(i, pair);
 			queue.add(pair);
 		}
 		
 		while(!queue.isEmpty()) {
-			Pair current = queue.poll();
+			Pair<Integer> current = queue.poll();
 			position = current.getElement();
 			for (int i = 0; i < weightMatrix[0].length; i++) {
 				if(weightMatrix[position][i]!=0) {
@@ -148,7 +156,7 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 	}
 
 	@Override
-	public List<T> dijkstra(T initialNode, T finalNode) {
+	public ArrayList<T> dijkstra(T initialNode, T finalNode) {
 		Map<T,T> previous = dijkstra(initialNode);
 		boolean pathFounded = false;
 		ArrayList<T> path = new ArrayList<>();
@@ -189,7 +197,7 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		for (int k = 0; k <length; k++) {
 			for (int i = 0; i < length; i++) {
 				for (int j = 0; j < length; j++) {
-					if(dist[i][j]> dist[i][k]+ dist[k][j]) {
+					if(dist[i][j]> dist[i][k]+ dist[k][j] && (dist[i][k]!=Integer.MAX_VALUE && dist[k][j]!=Integer.MAX_VALUE)) {
 						dist[i][j] = dist[i][k] + dist[k][j];
 					}
 				}
@@ -198,29 +206,27 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		return dist;
 	}
 	
-	@Override
 	public GraphMatrix<T> kruskal() {
 		DisjoinSet<T> disjoinset = new DisjoinSet<>(positionsIndex.size());
 		for(Entry<T, Integer> entry:positionsVertex.entrySet()) {
 			disjoinset.make(entry.getKey());
 		}
-		Queue<SuperPair> edges = new PriorityQueue<>();
+		Queue<SuperPair<T>> edges = new PriorityQueue<>();
 		for (int i = 0; i < weightMatrix.length; i++) {
 			for (int j = 0; j < weightMatrix[i].length; j++) {
-				SuperPair pair = new SuperPair(positionsIndex.get(i),positionsIndex.get(j),weightMatrix[i][j]);
+				SuperPair<T> pair = new SuperPair<>(positionsIndex.get(i),positionsIndex.get(j),weightMatrix[i][j]);
 				edges.add(pair);
 			}
 		}
 		while(!edges.isEmpty()) {
-			SuperPair pair = edges.poll();
-			T u = pair.element;
-			T v = pair.element2;
+			SuperPair<T> pair = edges.poll();
+			T u = pair.getElement();
+			T v = pair.getElement2();
 			disjoinset.union(u, v);
 		}
 		return null;
 	}
 	
-	@Override
 	public GraphMatrix<T> prim( ){
 		int NNodes = positionsVertex.size();
 		int i, j, k, x, y;
@@ -257,65 +263,48 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		int[] a= predNode;
 		GraphMatrix<T> result = new GraphMatrix<>(bidirectional, NNodes);
 		for ( i = 0; i < NNodes; i++ ) {
-			result.addEdge(positionsIndex.get(a[i]), positionsIndex.get(i));
+			if(a[i]!=i) {
+				result.addEdge(positionsIndex.get(a[i]), positionsIndex.get(i));
+			}
 		}
 		return result;
 	}
 	
-	class SuperPair implements Comparable<SuperPair>{
-		private T element;
-		private T element2;
-		private int weight;
-		public SuperPair(T element, T element2,int weight) {
-			this.element = element;
-			this.element2 = element2;
-			this.weight = weight;
-		}
-		
-		@Override
-		public int compareTo(SuperPair pair) {
-			return weight-pair.weight;
-		}
-		public T getElement() {
-			return element;
-		}
-		public T getElement2() {
-			return element2;
-		}
-		public int getWeight() {
-			return weight;
-		}
-	}
 	
-	class Pair implements Comparable<Integer>{
-		private  Integer element;
-		private Integer weight;
-		Pair(Integer element, Integer weight){
-			this.element = element;
-			this.weight = weight;
-		}
-		
-		@Override
-		public int compareTo(Integer arg0) {
-			return arg0-weight;
-		}
+	public Map<T, Integer> getPositionsVertex() {
+		return positionsVertex;
+	}
 
-		public Integer getElement() {
-			return element;
-		}
+	public Map<Integer, T> getPositionsIndex() {
+		return positionsIndex;
+	}
 
-		public void setElement(Integer element) {
-			this.element = element;
-		}
+	public boolean isBidirectional() {
+		return bidirectional;
+	}
 
-		public Integer getWeight() {
-			return weight;
-		}
+	public int[][] getWeightMatrix() {
+		return weightMatrix;
+	}
 
-		public void setWeight(Integer weight) {
-			this.weight = weight;
+	@Override
+	public boolean containsVertex(T element) {
+		return positionsVertex.containsKey(element);
+	}
+
+	@Override
+	public boolean delateVertex(T element) {
+		if(positionsVertex.containsKey(element)) {
+			int position = positionsVertex.get(element);
+			positionsVertex.remove(element);
+			positionsIndex.remove(position);
+			for (int i = 0; i < weightMatrix.length; i++) {
+				weightMatrix[i][position] = 0;
+				weightMatrix[position][i] = 0;
+			}
+			return true;
 		}
-		
+		return false;
 	}
 
 

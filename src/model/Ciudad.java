@@ -1,15 +1,18 @@
 package model;
 
-import java.util.ArrayDeque;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
-import listaAdyacencias.Arista;
-import listaAdyacencias.Grafo;
-import listaAdyacencias.Vertice;
+import data_structures.GraphList;
+import data_structures.Pair;
+import data_structures.*;
+
 
 public class Ciudad {
 	
@@ -18,7 +21,7 @@ public class Ciudad {
 	/**
 	 * Representa la estructura que contiene a los sitios de la ciudad.
 	 */
-	private Grafo<Sitio> sitios;
+	private Comp1<Point> sitios;
 	
 	/**
 	 * Representa la cantidad de sitios.
@@ -48,7 +51,7 @@ public class Ciudad {
 	 * @param identificador - Representa el número que identifica a la ciudad.
 	 */
 	public Ciudad(int identificador) {
-		sitios = new Grafo<>(false);
+		sitios = new Comp1<>(false);
 		formatoTexto = "";
 		this.identificador = identificador;
 		listadoCarreteras = new ArrayList<>();
@@ -60,7 +63,7 @@ public class Ciudad {
 	 * Método que se encarga de dar la estructura de sitios de la ciudad.
 	 * @return La lista de sitios que hay en la ciudad.
 	 */
-	public Grafo<Sitio> darSitios(){
+	public Comp1<Point> darSitios(){
 		return sitios;
 	}
 	
@@ -112,7 +115,7 @@ public class Ciudad {
 	 * @param ID - Es el número que va a identificar el sitio.
 	 */
 	public void agregarSitio(int ID){
-		Sitio sitio = new Sitio(ID);
+		Point sitio = new Point(ID);
 		sitios.agregarVertice(sitio);
 		numeroSitios++;
 	}
@@ -126,8 +129,8 @@ public class Ciudad {
 	 * @param distancia - Es el tiempo que tomará de ir del sitio A al sitio B.
 	 */
 	public void agregarCarretera(int sitioA, int sitioB, int distancia){
-		Sitio A = buscarSitio(sitioA);
-		Sitio B = buscarSitio(sitioB);
+		Point A = buscarSitio(sitioA);
+		Point B = buscarSitio(sitioB);
 		sitios.agregarArista(A, B, distancia);
 		String carretera = sitioA+" "+sitioB+" "+distancia;
 		listadoCarreteras.add(carretera);
@@ -139,13 +142,13 @@ public class Ciudad {
 	 * encontrar.
 	 * @return Un sitio que es el representado por el ID dado.
 	 */
-	private Sitio buscarSitio(int ID){
-		Sitio sitio = null;
+	private Point buscarSitio(int ID){
+		Point sitio = null;
 		boolean encontre = false;
-		HashMap<Sitio, Vertice<Sitio>> vertices = sitios.darVertices();
-		Iterator<Sitio> iterador = vertices.keySet().iterator();
+		HashMap<Point, Comp2<Point>> vertices = sitios.darVertices();
+		Iterator<Point> iterador = vertices.keySet().iterator();
 		while(iterador.hasNext() && !encontre) {
-			Sitio actual = iterador.next();
+			Point actual = iterador.next();
 			int IDActual = actual.darID();
 			if(IDActual == ID) {
 				sitio = actual;
@@ -163,7 +166,7 @@ public class Ciudad {
 	 * B, P ó N.
 	 */
 	public void modificarTipoSitio(int ID, char tipo) {
-		Sitio sitio = buscarSitio(ID);
+		Point sitio = buscarSitio(ID);
 		sitio.modificarTipo(tipo);
 	}
 	
@@ -175,104 +178,217 @@ public class Ciudad {
 	/**
 	 * @return
 	 */
+//	public String darSolucion() {
+//		String respuesta = "";
+//		long distancias[] = new long[numeroSitios];
+//		Arrays.fill(distancias, Integer.MAX_VALUE);
+//		boolean visitados[] = new boolean[numeroSitios];
+//
+//		Iterator<Comp2<Point>> iterador = sitios.darVertices().values().iterator();
+//		ArrayList<Integer> bancos = new ArrayList<>();
+//		Queue<Comp2<Point>> cola = new ArrayDeque<>();
+//		boolean agregados[] = new boolean[numeroSitios];
+//
+//		while (iterador.hasNext()) {
+//			Comp2<Point> vertice = iterador.next();
+//			char tipoVertice = vertice.darContenido().darTipo();
+//			int IDVertice = vertice.darContenido().darID();
+//			if (tipoVertice == Point.BANCO) {
+//				bancos.add(IDVertice);
+//			}else if (tipoVertice == Point.POLICIA) {
+//				visitados[IDVertice] = true;
+//				distancias[IDVertice] = 0;
+//				cola.add(vertice);
+//				Queue<Point> adyacencias = vertice.darAdyacenciasOrdenAscendente();
+//				HashMap<Point, Comp3<Point>> aristas = vertice.darAristas();
+//				while (!adyacencias.isEmpty()) {
+//					Point sitio = adyacencias.remove();
+//					int IDSitio = sitio.darID();
+//					int peso = aristas.get(sitio).darPeso();
+//					if (visitados[IDSitio] == false) {
+//						if (agregados[IDSitio] == false) {
+//							Comp2<Point> v = aristas.get(sitio).darVertice();
+//							distancias[IDSitio] = peso;
+//							cola.add(v);
+//							agregados[IDSitio] = true;
+//						} else if (distancias[IDSitio] > peso) {
+//							distancias[IDSitio] = peso;
+//						}						
+//					}
+//				}
+//			}
+//		}
+//		
+//		// el famoso dijstrijaa
+//		while (!cola.isEmpty()) {
+//
+//			Comp2<Point> vertice = cola.remove();
+//			HashMap<Point, Comp3<Point>> aristas = vertice.darAristas();
+//			Queue<Point> adyacencias = vertice.darAdyacenciasOrdenAscendente();
+//
+//			while (!adyacencias.isEmpty()) {
+//				Point nodo = adyacencias.remove();
+//				if ((distancias[nodo.darID()] == Integer.MAX_VALUE && !visitados[nodo.darID()])
+//						|| distancias[vertice.darContenido().darID()]
+//								+ aristas.get(nodo).darPeso() < distancias[nodo.darID()]) {
+//					distancias[nodo.darID()] = distancias[vertice.darContenido().darID()] + aristas.get(nodo).darPeso();
+//					cola.add(aristas.get(nodo).darVertice());
+//				}
+//			}
+//			visitados[vertice.darContenido().darID()] = true;
+//		}
+//
+//		boolean infinito = false;
+//		long mayor = -1;
+//		int cont = 0;
+//		String txt = "";
+//		for (int i = 0; i < bancos.size() && !infinito; i++) {
+//			if (distancias[bancos.get(i)] == Integer.MAX_VALUE) {
+//				cont = 1;
+//				txt = "" + bancos.get(i) + "";
+//				for (int j = i + 1; j < bancos.size(); j++) {
+//					if (distancias[bancos.get(j)] == Integer.MAX_VALUE) {
+//						cont++;
+//						
+//						txt += " " + bancos.get(j);
+//					}
+//				}
+//				infinito = true;
+//			} else if (distancias[bancos.get(i)] > mayor) {
+//				mayor = distancias[bancos.get(i)];
+//				txt = bancos.get(i) + "";
+//				cont = 1;
+//			} else if (distancias[bancos.get(i)] == mayor) {
+//				txt += " " + bancos.get(i);
+//				cont++;
+//			}
+//		}
+//		pintarBancosSolucion(txt);
+//		if (!infinito)
+//			respuesta = (cont + " " + mayor + "\n" + txt);
+//		else
+//			respuesta = (cont + " *\n" + txt);
+//		return respuesta;
+//	}
 	public String darSolucion() {
-		String respuesta = "";
-		long distancias[] = new long[numeroSitios];
-		Arrays.fill(distancias, Integer.MAX_VALUE);
-		boolean visitados[] = new boolean[numeroSitios];
-
-		Iterator<Vertice<Sitio>> iterador = sitios.darVertices().values().iterator();
-		ArrayList<Integer> bancos = new ArrayList<>();
-		Queue<Vertice<Sitio>> cola = new ArrayDeque<>();
-		boolean agregados[] = new boolean[numeroSitios];
-
-		while (iterador.hasNext()) {
-			Vertice<Sitio> vertice = iterador.next();
-			char tipoVertice = vertice.darContenido().darTipo();
-			int IDVertice = vertice.darContenido().darID();
-			if (tipoVertice == Sitio.BANCO) {
-				bancos.add(IDVertice);
-			}else if (tipoVertice == Sitio.POLICIA) {
-				visitados[IDVertice] = true;
-				distancias[IDVertice] = 0;
-				cola.add(vertice);
-				Queue<Sitio> adyacencias = vertice.darAdyacenciasOrdenAscendente();
-				HashMap<Sitio, Arista<Sitio>> aristas = vertice.darAristas();
-				while (!adyacencias.isEmpty()) {
-					Sitio sitio = adyacencias.remove();
-					int IDSitio = sitio.darID();
-					int peso = aristas.get(sitio).darPeso();
-					if (visitados[IDSitio] == false) {
-						if (agregados[IDSitio] == false) {
-							Vertice<Sitio> v = aristas.get(sitio).darVertice();
-							distancias[IDSitio] = peso;
-							cola.add(v);
-							agregados[IDSitio] = true;
-						} else if (distancias[IDSitio] > peso) {
-							distancias[IDSitio] = peso;
-						}						
-					}
-				}
+		String result = "";
+		String[] arrayAux = formatoTexto.split("\n");
+		int[] aux = Arrays.stream(arrayAux[0].split(" ")).mapToInt(Integer::parseInt).toArray();
+		int n = aux[0];
+		int m = aux[1];
+		int b = aux[2];
+		int p = aux[3];
+		GraphList<Integer> graph = new GraphList<>(true);
+		for (int i = 1; i <= m; i++) {
+			aux = Arrays.stream(arrayAux[i].split(" ")).mapToInt(Integer::parseInt).toArray();
+			graph.addEdge(aux[0], aux[1], aux[2]);
+		}
+		int[] banks = Arrays.stream(arrayAux[m+1].split(" ")).mapToInt(Integer::parseInt).toArray();
+		for (int i = 0; i < banks.length; i++) {
+			graph.addVertex(banks[i]);
+		}
+		
+		Integer[] polices = new Integer[0];
+		for (int i = 0; i < polices.length; i++) {
+			graph.addVertex(polices[i]);
+		}
+		if(p!=0) {
+			int[] Auxpolices = Arrays.stream(arrayAux[m+2].split(" ")).mapToInt(Integer::parseInt).toArray();
+			polices = new Integer[Auxpolices.length];
+			for (int i = 0; i < Auxpolices.length; i++) {
+				polices[i] = Auxpolices[i];
 			}
 		}
-		// el famoso dijstrijaa
-		while (!cola.isEmpty()) {
-
-			Vertice<Sitio> vertice = cola.remove();
-			HashMap<Sitio, Arista<Sitio>> aristas = vertice.darAristas();
-			Queue<Sitio> adyacencias = vertice.darAdyacenciasOrdenAscendente();
-
-			while (!adyacencias.isEmpty()) {
-				Sitio nodo = adyacencias.remove();
-				if ((distancias[nodo.darID()] == Integer.MAX_VALUE && !visitados[nodo.darID()])
-						|| distancias[vertice.darContenido().darID()]
-								+ aristas.get(nodo).darPeso() < distancias[nodo.darID()]) {
-					distancias[nodo.darID()] = distancias[vertice.darContenido().darID()] + aristas.get(nodo).darPeso();
-					cola.add(aristas.get(nodo).darVertice());
-				}
-			}
-			visitados[vertice.darContenido().darID()] = true;
+		boolean[] bankStatus = new boolean[n];
+		for (int i = 0; i < b; i++) {
+			bankStatus[banks[i]] = true;
 		}
-
-		boolean infinito = false;
-		long mayor = -1;
-		int cont = 0;
-		String txt = "";
-		for (int i = 0; i < bancos.size() && !infinito; i++) {
-			if (distancias[bancos.get(i)] == Integer.MAX_VALUE) {
-				cont = 1;
-				txt = "" + bancos.get(i) + "";
-				for (int j = i + 1; j < bancos.size(); j++) {
-					if (distancias[bancos.get(j)] == Integer.MAX_VALUE) {
-						cont++;
-						
-						txt += " " + bancos.get(j);
-					}
-				}
-				infinito = true;
-			} else if (distancias[bancos.get(i)] > mayor) {
-				mayor = distancias[bancos.get(i)];
-				txt = bancos.get(i) + "";
-				cont = 1;
-			} else if (distancias[bancos.get(i)] == mayor) {
-				txt += " " + bancos.get(i);
-				cont++;
+		Map<Integer,Integer> dist = graph.dijkstraDistance(polices);
+		int max = -1;
+		
+		for (int i = 0; i < banks.length; i++) {
+			if(dist.get(banks[i])!=null && dist.get(banks[i])>max) {
+				max = dist.get(banks[i]);
 			}
 		}
-		pintarBancosSolucion(txt);
-		if (!infinito)
-			respuesta = (cont + " " + mayor + "\n" + txt);
-		else
-			respuesta = (cont + " *\n" + txt);
-		return respuesta;
+		ArrayList<Integer> ans = new ArrayList<Integer>();
+		for (int i = 0; i < banks.length; i++) {
+			if(dist.get(banks[i])!=null && dist.get(banks[i])==max) {
+				ans.add(banks[i]);
+			}
+		}
+
+		result+=(ans.size() + " " + (max == Integer.MAX_VALUE ? "* \n" : max + "\n"));
+		for (int i = 0; i < ans.size(); i++) {
+			result+=(ans.get(i)+" ");
+		}
+		return result;
 	}
-	
-	private void pintarBancosSolucion(String txt) {
-		String[] split = txt.split(" ");
-		for (int i = 0; i < split.length; i++) {
-			int ID = Integer.parseInt(split[i]);
-			Sitio solucion = buscarSitio(ID);
-			solucion.cambiarParticipacion(true);
+	public String darSolucionFloyd(){
+		String result = "";
+		String[] arrayAux = formatoTexto.split("\n");
+		int[] aux = Arrays.stream(arrayAux[0].split(" ")).mapToInt(Integer::parseInt).toArray();
+		int n = aux[0];
+		int m = aux[1];
+		int b = aux[2];
+		int p = aux[3];
+		GraphList<Integer> graph = new GraphList<>(true);
+		for (int i = 1; i <= m; i++) {
+			aux = Arrays.stream(arrayAux[i].split(" ")).mapToInt(Integer::parseInt).toArray();
+			graph.addEdge(aux[0], aux[1], aux[2]);
 		}
+		int[] banks = Arrays.stream(arrayAux[m+1].split(" ")).mapToInt(Integer::parseInt).toArray();
+		for (int i = 0; i < banks.length; i++) {
+			graph.addVertex(banks[i]);
+		}
+		Integer[] polices = new Integer[0];
+		for (int i = 0; i < polices.length; i++) {
+			graph.addVertex(polices[i]);
+		}
+		if(p!=0) {
+			int[] Auxpolices = Arrays.stream(arrayAux[m+2].split(" ")).mapToInt(Integer::parseInt).toArray();
+			polices = new Integer[Auxpolices.length];
+			for (int i = 0; i < Auxpolices.length; i++) {
+				polices[i] = Auxpolices[i];
+			}
+		}
+		boolean[] bankStatus = new boolean[n];
+		for (int i = 0; i < b; i++) {
+			bankStatus[banks[i]] = true;
+		}
+		int[][] dist = graph.floydWarshall();
+		Map<Integer,Integer> positions = graph.getPosition();
+		Queue<Pair<Integer>> queue = new PriorityQueue<>();
+		int max = -1;
+		for (int i = 0; i < banks.length; i++) {
+			int min = Integer.MAX_VALUE;
+			int bank = positions.get(banks[i]);
+			for (int j = 0; j < polices.length; j++) {
+				int police = positions.get(polices[i]);
+				if(dist[police][bank]<min) {
+					min =dist[police][bank];
+				}
+			}
+			if(min>max) {
+				max = min;
+			}
+			Pair<Integer> pair = new Pair<>(bank,min);
+			queue.add(pair);
+		}
+		ArrayList<Integer> ans = new ArrayList<>();
+		while(!queue.isEmpty()) {
+			Pair<Integer> pair = queue.poll();
+			if(pair.getWeight().equals(max)) {
+				ans.add(pair.getElement());
+			}else {
+				break;
+			}
+		}
+		result+=(ans.size() + " " + (max == Integer.MAX_VALUE ? "* \n" : max + "\n"));
+		for (int i = 0; i < ans.size(); i++) {
+			result+=(ans.get(i)+" ");
+		}
+		return result;
 	}
+
 }

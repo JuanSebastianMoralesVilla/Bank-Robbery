@@ -159,7 +159,75 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 		}
 		return previous;
 	}
-
+	
+	public Map<T,Integer> dijkstraDistance(T[] initialNode) {
+		Map<T,Integer> distances = new HashMap<>();
+		PriorityQueue<Pair<T>> pQueue = new PriorityQueue<Pair<T>>(); 
+		
+		for(Map.Entry<T,VertexADJ<T>> mapElement : map.entrySet()) {
+			distances.put((T)mapElement.getKey(),Integer.MAX_VALUE);
+		}
+		for (int i = 0; i < initialNode.length; i++) {
+			distances.remove(initialNode[i]);
+			distances.put(initialNode[i],0);
+			Pair<T> pair = new Pair<>(initialNode[i],0);
+			pQueue.add(pair);
+		}
+		while(!pQueue.isEmpty()) {
+			T currentVertex = pQueue.poll().getElement();
+			ArrayList<T> currentNeighbors = map.get(currentVertex).getEdges();
+			HashMap<T,Integer> currentWeights =  (HashMap<T, Integer>) map.get(currentVertex).getEdgesWeight();
+			Map<T,Integer> edgesWeight = map.get(currentVertex).getEdgesWeight();
+			for (Map.Entry<T,Integer> entry : edgesWeight.entrySet()) {
+				T i = entry.getKey();
+				int alt =distances.get(currentVertex)+entry.getValue();
+				if(alt<distances.get(i)) {
+					distances.remove(i);
+					distances.put(i, alt);
+					pQueue.add(new Pair<>(i,alt));
+				}
+			}
+	
+			for(int i=0;i<currentNeighbors.size();i++) {
+				T neighbor = currentNeighbors.get(i);
+				int aux = distances.get(currentVertex) + currentWeights.get(neighbor);
+				int currentDistance = distances.get(neighbor);
+				
+				if(aux < currentDistance) {
+					distances.remove(neighbor);
+					distances.put(neighbor, aux);
+					
+					Pair<T> pair = new Pair<>(neighbor,aux);
+					pQueue.add(pair);
+				}
+			}
+		}
+		return distances;
+	}
+//	public void dijkstra(int[] police) {
+//		dist = new int[dist.length];
+//		Arrays.fill(dist, Integer.MAX_VALUE);
+//		Queue<Pair> queue = new PriorityQueue<>(Collections.reverseOrder());
+//		for (int i = 0; i < police.length; i++) {
+//			dist[police[i]] = 0;
+//			Pair pair = new Pair(police[i],dist[police[i]]);
+//			queue.add(pair);
+//		}
+//		
+//		while(!queue.isEmpty()) {
+//			Pair current = queue.poll();
+//			int position = current.element;
+//			Map<Integer,Integer> edgesWeight = map.get(position).edgesWeight;
+//			for (Map.Entry<Integer,Integer> entry : edgesWeight.entrySet()) {
+//				int i = entry.getKey();
+//				int alt =dist[position]+entry.getValue();
+//				if(alt<dist[i]) {
+//					dist[i] = alt;
+//					queue.add(new Pair(i,dist[i]));
+//				}
+//			}
+//		}
+//	}
 	@Override
 	public ArrayList<T> dijkstra(T initialNode, T finalNode) {
 	
@@ -275,6 +343,7 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 	
 	public GraphList<T> kruskal() {
 		//Crear el arbol
+		GraphList<T> result = new GraphList<>(bidirectional);
 		DisjoinSet<T> disjoinset = new DisjoinSet<>(map.size());
 		for(Entry<T, VertexADJ<T>> entry:map.entrySet()) {
 			disjoinset.make(entry.getKey());
@@ -290,11 +359,16 @@ public class GraphList<T extends Comparable<T>> implements IGraph<T> {
 		
 		while(!edges.isEmpty()) {
 			SuperPair<T> pair = edges.poll();
+			
 			T u = pair.getElement();
 			T v = pair.getElement2();
-			disjoinset.union(u, v);
+			if(disjoinset.find(u)!=disjoinset.find(v)) {
+				disjoinset.union(u, v);
+				result.addEdge(u, v, pair.getWeight());
+			}
+			
 		}
-		return null;
+		return result;
 	}
 	public Map<T, VertexADJ<T>> getMap() {
 		return map;

@@ -1,6 +1,6 @@
 package model;
 
-public class Sitio implements Comparable<Sitio>{
+public class Point implements Comparable<Point>{
 	
 	// Constantes -----------------------------------------------------------------------
 	
@@ -45,7 +45,7 @@ public class Sitio implements Comparable<Sitio>{
 	 * participación en la solución del problema.
 	 * @param ID - Es el número que diferencia a este sitio de los demás.
 	 */
-	public Sitio(int ID){
+	public Point(int ID){
 		this.ID = ID;
 		tipo = NEUTRO;
 		esSolucion = false;
@@ -95,7 +95,7 @@ public class Sitio implements Comparable<Sitio>{
 	}
 
 	@Override
-	public int compareTo(Sitio sitio) {
+	public int compareTo(Point sitio) {
 		int respuesta = 0;
 		if(ID < sitio.ID) {
 			respuesta = -1;

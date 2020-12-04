@@ -3,7 +3,7 @@ package data_structures;
 public class Pair <T extends Comparable<T>> implements Comparable<Pair<T>>{
 	private T element;
 	private Integer weight;
-	Pair(T element, Integer weight){
+	public Pair(T element, Integer weight){
 		this.element = element;
 		this.weight = weight;
 	}

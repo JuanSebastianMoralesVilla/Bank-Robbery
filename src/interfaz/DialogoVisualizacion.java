@@ -1,17 +1,24 @@
 package interfaz;
 
-import mundo.Ciudad;
-
 import javax.swing.*;
 
-import java.awt.*;
+import model.Ciudad;
 
-public class DialogoVisualizacion extends JDialog {
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class DialogoVisualizacion extends JDialog implements ActionListener{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -192867667145239793L;
+	
+	
+	public static final String DIJKSTRA = "Dijkstra";
+	
+	public static final String WARSHALL = "Floyd Warshall";
 	
 	// Atributos ------------------------------------------------------------------------------
 	
@@ -35,6 +42,11 @@ public class DialogoVisualizacion extends JDialog {
 	 */
 	private JTextArea areaRespuesta;
 	
+	private JButton btnDijkstra;
+	
+	private JButton btnWarshall;
+	
+	
 	// Constructor ----------------------------------------------------------------------------
 	
 	public DialogoVisualizacion(InterfazBankRobbery ventana, Ciudad ciudad) {
@@ -54,7 +66,7 @@ public class DialogoVisualizacion extends JDialog {
 		
 		JPanel panelRespuesta = new JPanel();
 		panelRespuesta.setPreferredSize(new Dimension(342, 600));
-		panelRespuesta.setLayout(new BoxLayout(panelRespuesta,BoxLayout.Y_AXIS));
+		panelRespuesta.setLayout(new FlowLayout());
 
 		
 		addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -72,12 +84,23 @@ public class DialogoVisualizacion extends JDialog {
 		areaRespuesta.setBackground(Color.WHITE);
 		areaRespuesta.setFont(new Font("Consolas", Font.PLAIN, 36));
 		
+		btnDijkstra = new JButton(DIJKSTRA);
+		btnDijkstra.setActionCommand(DIJKSTRA);
+		btnDijkstra.addActionListener(this);
+		btnWarshall = new JButton(WARSHALL);
+		btnWarshall.setActionCommand(WARSHALL);
+		btnWarshall.addActionListener(this);
+		
 		JScrollPane scroll = new JScrollPane(areaRespuesta);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scroll.setPreferredSize(new Dimension(342, 185));
-		panelRespuesta.add(lAux2);
+		panelRespuesta.add(btnDijkstra);
+		panelRespuesta.add(btnWarshall);
 		panelRespuesta.add(scroll);
+		
+		
+
 		
 		
 		panelLienzo = new PanelLienzo(ciudad, this);
@@ -107,5 +130,20 @@ public class DialogoVisualizacion extends JDialog {
 	public void solucionarCiudad() {
 		principal.solucionarCiudad();
 		panelLienzo.haySolucion(true);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+		String comando = e.getActionCommand();
+		if (comando.equals(DIJKSTRA)) {
+			System.out.println("ingreso");
+			principal.solucionarCiudad();			
+		}else {
+			System.out.println("ingreso");
+			principal.solucionarCiudadFloyd();
+		}
+		
 	}
 }

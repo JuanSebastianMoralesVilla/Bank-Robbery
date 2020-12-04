@@ -16,12 +16,14 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 	Map<Integer,T> positionsIndex;
 	private boolean bidirectional;
 	private int[][] weightMatrix;
+	private int size;
 	
 	public GraphMatrix(boolean bidirectional,int lenght) {
 		positionsVertex = new HashMap<>();
 		positionsIndex = new HashMap<>();
 		this.bidirectional = bidirectional;
 		weightMatrix = new int[lenght][lenght];
+		size = 0;
 	}
 	
 	@Override
@@ -30,6 +32,7 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 			int i = positionsVertex.size();
 			positionsVertex.put(element, i);
 			positionsIndex.put(i,element);
+			size++;
 			return true;
 		}
 		return false;
@@ -206,29 +209,42 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 		return dist;
 	}
 	
+
 	public GraphMatrix<T> kruskal() {
-		DisjoinSet<T> disjoinset = new DisjoinSet<>(positionsIndex.size());
+
+		DisjoinSet<T> disjoinset = new DisjoinSet<>(size);
+		GraphMatrix<T> result = new GraphMatrix<>(bidirectional, size);
+		PriorityQueue<SuperPair<T>> edges = new PriorityQueue<>();
 		for(Entry<T, Integer> entry:positionsVertex.entrySet()) {
 			disjoinset.make(entry.getKey());
 		}
-		Queue<SuperPair<T>> edges = new PriorityQueue<>();
-		for (int i = 0; i < weightMatrix.length; i++) {
-			for (int j = 0; j < weightMatrix[i].length; j++) {
-				SuperPair<T> pair = new SuperPair<>(positionsIndex.get(i),positionsIndex.get(j),weightMatrix[i][j]);
-				edges.add(pair);
-			}
+		for ( int i=0; i < size; i++){
+			for ( int j=0; j < size; j++){
+				if ( weightMatrix[i][j] != 0 ) {
+					T u = positionsIndex.get(i);
+					T v = positionsIndex.get(j);
+					int weight = weightMatrix[i][j];
+					SuperPair<T> pair = new SuperPair<>(u, v, weight);
+					edges.add(pair);
+				}
+			}	
 		}
 		while(!edges.isEmpty()) {
 			SuperPair<T> pair = edges.poll();
+			
 			T u = pair.getElement();
 			T v = pair.getElement2();
-			disjoinset.union(u, v);
+			if(disjoinset.find(u)!=disjoinset.find(v)) {
+				disjoinset.union(u, v);
+				result.addEdge(u, v, pair.getWeight());
+			}
+			
 		}
-		return null;
+		return result;
 	}
 	
 	public GraphMatrix<T> prim( ){
-		int NNodes = positionsVertex.size();
+		int NNodes = size;
 		int i, j, k, x, y;
 		boolean[] Reached = new boolean[NNodes];
 		int[] predNode = new int[NNodes];
@@ -302,6 +318,7 @@ public class GraphMatrix<T extends Comparable<T>> implements IGraph<T>{
 				weightMatrix[i][position] = 0;
 				weightMatrix[position][i] = 0;
 			}
+			size--;
 			return true;
 		}
 		return false;

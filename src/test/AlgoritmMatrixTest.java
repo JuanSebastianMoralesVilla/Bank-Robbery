@@ -103,5 +103,12 @@ private GraphMatrix<Integer> graph;
 		GraphMatrix<Integer> tree = graph.prim();
 		assertTrue(tree.bfs(4).toString().equals("[4, 6, 5, 2, 3, 0, 1, 7]"));
 	}
-
+	
+	@Test
+	void testKruskal() {
+		setUp5();
+		GraphMatrix<Integer> tree = graph.kruskal();
+		System.out.println(tree.bfs(4).toString());
+		assertTrue(tree.bfs(4).toString().equals("[4, 6, 5, 2, 3, 1, 0, 7]"));
+	}
 }

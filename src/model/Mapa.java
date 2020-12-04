@@ -78,7 +78,7 @@ public class Mapa {
 			if(!linea.equals("")) {
 				for (int i = 0; i < split.length; i++) {
 					int IDSitio = Integer.parseInt(split[i]);
-					ciudadActual.modificarTipoSitio(IDSitio, Sitio.BANCO);
+					ciudadActual.modificarTipoSitio(IDSitio, Point.BANCO);
 				}
 			}
 			if(numeroPolicias > 0) {
@@ -89,7 +89,7 @@ public class Mapa {
 				// Asignación de policías
 				for (int i = 0; i < split.length; i++) {
 					int IDSitio = Integer.parseInt(split[i]);
-					ciudadActual.modificarTipoSitio(IDSitio, Sitio.POLICIA);
+					ciudadActual.modificarTipoSitio(IDSitio, Point.POLICIA);
 				}
 			}
 			ciudadActual.modificarFormatoTexto(descripcionCiudad);

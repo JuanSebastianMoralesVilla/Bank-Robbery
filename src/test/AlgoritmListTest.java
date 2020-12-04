@@ -106,5 +106,12 @@ class AlgoritmListTest {
 		assertTrue(tree.bfs(4).toString().equals("[4, 6, 5, 3, 2, 7, 1, 0]"));
 	}
 	
+	@Test
+	void testKruskal() {
+		setUp5();
+		GraphList<Integer> tree = graph.kruskal();
+		assertTrue(tree.bfs(4).toString().equals("[4, 6, 5, 2, 3, 1, 0, 7]"));
+	}
+	
 
 }

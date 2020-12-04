@@ -22,10 +22,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import listaAdyacencias.Grafo;
-import listaAdyacencias.Vertice;
-import mundo.Ciudad;
-import mundo.Sitio;
+import data_structures.*;
+import model.Ciudad;
+import model.Point;
 
 public class PanelLienzo extends JPanel implements ActionListener, MouseListener {
 
@@ -201,7 +200,7 @@ public class PanelLienzo extends JPanel implements ActionListener, MouseListener
 	 * @param ciudad - Es la ciudad a la que se le quieren calcular las medidas.
 	 */
 	private void calcularPosicionesSitios(Ciudad ciudad) {
-		Grafo<Sitio> sitios = ciudad.darSitios();
+		Comp1<Point> sitios = ciudad.darSitios();
 		int x = 0;
 		int y = 0;
 		int numeroSitios = ciudad.darNumeroSitios();
@@ -211,10 +210,10 @@ public class PanelLienzo extends JPanel implements ActionListener, MouseListener
 		y = getHeight()/2;
 		double razonAvance = (double) 360 / (double) numeroSitios;
 		double razon = 0.0;
-		HashMap<Sitio, Vertice<Sitio>> vertices = sitios.darVertices();
-		Iterator<Sitio> iterador = vertices.keySet().iterator();
+		HashMap<Point, Comp2<Point>> vertices = sitios.darVertices();
+		Iterator<Point> iterador = vertices.keySet().iterator();
 		for (double i = 0.0; i < 360.0; i = i+razonAvance) {
-			Sitio sitioActual = iterador.next();
+			Point sitioActual = iterador.next();
 			razon = Math.toRadians(i);
 			String coordenadasPuntoInicialPosibleCarretera = (int) (radio*Math.cos(razon)+x+21)+" "+(int) (radio*Math.sin(razon)+y+31);
 			String coordenadasSitio = (int) (radio*Math.cos(razon)+x)+" "+(int) (radio*Math.sin(razon)+y);
@@ -261,23 +260,23 @@ public class PanelLienzo extends JPanel implements ActionListener, MouseListener
 	 */
 	private void dibujarSitios(Graphics g, Ciudad ciudad) {
 		Graphics2D g2d = (Graphics2D) g;
-		Grafo<Sitio> sitios = ciudad.darSitios();
+		Comp1<Point> sitios = ciudad.darSitios();
 		g2d.setColor(Color.BLACK);
 		g2d.setStroke(new BasicStroke(2));
-		HashMap<Sitio, Vertice<Sitio>> vertices = sitios.darVertices();
-		Iterator<Sitio> iterador = vertices.keySet().iterator();
+		HashMap<Point, Comp2<Point>> vertices = sitios.darVertices();
+		Iterator<Point> iterador = vertices.keySet().iterator();
 		while (iterador.hasNext()) {
-			Sitio sitioActual = iterador.next();
+			Point sitioActual = iterador.next();
 			Integer ID = sitioActual.darID();
 			char tipoSitio = sitioActual.darTipo();
 			switch (tipoSitio) {
-			case Sitio.BANCO:
+			case Point.BANCO:
 				g2d.setColor(COLOR_BANCOS);
 				break;
-			case Sitio.POLICIA:
+			case Point.POLICIA:
 				g2d.setColor(COLOR_ESTACIONES);
 				break;
-			case Sitio.NEUTRO:
+			case Point.NEUTRO:
 				g2d.setColor(COLOR_NEUTROS);
 				break;
 			}
@@ -304,11 +303,11 @@ public class PanelLienzo extends JPanel implements ActionListener, MouseListener
 	 */
 	private void pintarSolucion(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		Grafo<Sitio> sitios = ciudad.darSitios();
-		HashMap<Sitio, Vertice<Sitio>> vertices = sitios.darVertices();
-		Iterator<Sitio> iterador = vertices.keySet().iterator();
+		Comp1<Point> sitios = ciudad.darSitios();
+		HashMap<Point, Comp2<Point>> vertices = sitios.darVertices();
+		Iterator<Point> iterador = vertices.keySet().iterator();
 		while(iterador.hasNext()){
-			Sitio sitioActual = iterador.next();
+			Point sitioActual = iterador.next();
 			if(sitioActual.esSolucion()){
 				int ID = sitioActual.darID();
 				String coordenadasSitio = tablaCoordenadasSitios.get(ID);

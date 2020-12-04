@@ -18,9 +18,7 @@
 ### This program was adapted to be displayed with a graphical interface, additionally there are different algorithms that are used in the graphs.
 
 ## Docs
-### https://docs.google.com/document/d/1ID_dtGn3jrvUSeKofwxGebjClUDbd7cz19MMlPRfk_A/edit
-## Test Cases
-### https://correoicesiedu-my.sharepoint.com/:w:/g/personal/juan_morales10_correo_icesi_edu_co/EXEN4ZGRpCNCqTHTrV9cLZMB48P6M_Xhj0jT7_B6LOaicg?e=b3M80t
+#### https://icesiedu-my.sharepoint.com/:w:/g/personal/1193029087_u_icesi_edu_co/ERFOdl2gRSBHhqCofdoWEWABgfzTPGcvPiEwYEcQ9z2UiA?e=3S5tXN
 
 
 ## Integrantes

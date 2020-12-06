@@ -23,12 +23,21 @@
 
 ### This program was adapted to be displayed with a graphical interface, additionally there are different algorithms that are used in the graphs.
 
+##  Video explicativo 
+### https://www.youtube.com/watch?v=yjpy5VavC7E&feature=youtu.be
+
+## Interfaz de carga
+
+![alt text](https://github.com/JuanSebastianMoralesVilla/Bank-Robbery/blob/main/Images/Captura.PNG)
+
+## Previsualizacion del Grafo
+
+![alt text](https://github.com/JuanSebastianMoralesVilla/Bank-Robbery/blob/main/Images/Captura2.PNG) 
 ##  Documentacion, tads, metodo de la ingenieria, casos de prueba.
 
 #### https://github.com/JuanSebastianMoralesVilla/Bank-Robbery/blob/main/Documentacion/Documentacion%20TI3.pdf
 
-##  Video explicativo 
-### https://www.youtube.com/watch?v=yjpy5VavC7E&feature=youtu.be
+
 
 ## Integrantes
 ### Santiago hurtado

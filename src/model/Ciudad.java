@@ -178,106 +178,15 @@ public class Ciudad {
 	/**
 	 * @return
 	 */
-//	public String darSolucion() {
-//		String respuesta = "";
-//		long distancias[] = new long[numeroSitios];
-//		Arrays.fill(distancias, Integer.MAX_VALUE);
-//		boolean visitados[] = new boolean[numeroSitios];
-//
-//		Iterator<Comp2<Point>> iterador = sitios.darVertices().values().iterator();
-//		ArrayList<Integer> bancos = new ArrayList<>();
-//		Queue<Comp2<Point>> cola = new ArrayDeque<>();
-//		boolean agregados[] = new boolean[numeroSitios];
-//
-//		while (iterador.hasNext()) {
-//			Comp2<Point> vertice = iterador.next();
-//			char tipoVertice = vertice.darContenido().darTipo();
-//			int IDVertice = vertice.darContenido().darID();
-//			if (tipoVertice == Point.BANCO) {
-//				bancos.add(IDVertice);
-//			}else if (tipoVertice == Point.POLICIA) {
-//				visitados[IDVertice] = true;
-//				distancias[IDVertice] = 0;
-//				cola.add(vertice);
-//				Queue<Point> adyacencias = vertice.darAdyacenciasOrdenAscendente();
-//				HashMap<Point, Comp3<Point>> aristas = vertice.darAristas();
-//				while (!adyacencias.isEmpty()) {
-//					Point sitio = adyacencias.remove();
-//					int IDSitio = sitio.darID();
-//					int peso = aristas.get(sitio).darPeso();
-//					if (visitados[IDSitio] == false) {
-//						if (agregados[IDSitio] == false) {
-//							Comp2<Point> v = aristas.get(sitio).darVertice();
-//							distancias[IDSitio] = peso;
-//							cola.add(v);
-//							agregados[IDSitio] = true;
-//						} else if (distancias[IDSitio] > peso) {
-//							distancias[IDSitio] = peso;
-//						}						
-//					}
-//				}
-//			}
-//		}
-//		
-//		// el famoso dijstrijaa
-//		while (!cola.isEmpty()) {
-//
-//			Comp2<Point> vertice = cola.remove();
-//			HashMap<Point, Comp3<Point>> aristas = vertice.darAristas();
-//			Queue<Point> adyacencias = vertice.darAdyacenciasOrdenAscendente();
-//
-//			while (!adyacencias.isEmpty()) {
-//				Point nodo = adyacencias.remove();
-//				if ((distancias[nodo.darID()] == Integer.MAX_VALUE && !visitados[nodo.darID()])
-//						|| distancias[vertice.darContenido().darID()]
-//								+ aristas.get(nodo).darPeso() < distancias[nodo.darID()]) {
-//					distancias[nodo.darID()] = distancias[vertice.darContenido().darID()] + aristas.get(nodo).darPeso();
-//					cola.add(aristas.get(nodo).darVertice());
-//				}
-//			}
-//			visitados[vertice.darContenido().darID()] = true;
-//		}
-//
-//		boolean infinito = false;
-//		long mayor = -1;
-//		int cont = 0;
-//		String txt = "";
-//		for (int i = 0; i < bancos.size() && !infinito; i++) {
-//			if (distancias[bancos.get(i)] == Integer.MAX_VALUE) {
-//				cont = 1;
-//				txt = "" + bancos.get(i) + "";
-//				for (int j = i + 1; j < bancos.size(); j++) {
-//					if (distancias[bancos.get(j)] == Integer.MAX_VALUE) {
-//						cont++;
-//						
-//						txt += " " + bancos.get(j);
-//					}
-//				}
-//				infinito = true;
-//			} else if (distancias[bancos.get(i)] > mayor) {
-//				mayor = distancias[bancos.get(i)];
-//				txt = bancos.get(i) + "";
-//				cont = 1;
-//			} else if (distancias[bancos.get(i)] == mayor) {
-//				txt += " " + bancos.get(i);
-//				cont++;
-//			}
-//		}
-//		pintarBancosSolucion(txt);
-//		if (!infinito)
-//			respuesta = (cont + " " + mayor + "\n" + txt);
-//		else
-//			respuesta = (cont + " *\n" + txt);
-//		return respuesta;
-//	}
+
 	public String darSolucion() {
 		String result = "";
 		String[] arrayAux = formatoTexto.split("\n");
 		int[] aux = Arrays.stream(arrayAux[0].split(" ")).mapToInt(Integer::parseInt).toArray();
-		int n = aux[0];
-		int m = aux[1];
-		int b = aux[2];
-		int p = aux[3];
+		int n = aux[0]; // vertices o puntos 
+		int m = aux[1];  // aristas
+		int b = aux[2]; // bancos
+		int p = aux[3]; // policia
 		GraphList<Integer> graph = new GraphList<>(true);
 		for (int i = 1; i <= m; i++) {
 			aux = Arrays.stream(arrayAux[i].split(" ")).mapToInt(Integer::parseInt).toArray();
